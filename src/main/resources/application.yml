@@ -13,3 +13,7 @@ spring:
     job-store-type: jdbc
     jdbc:
       initialize-schema: embedded
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

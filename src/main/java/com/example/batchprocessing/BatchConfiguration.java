@@ -1,5 +1,10 @@
 package com.example.batchprocessing;
 
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.batch.MyBatisBatchItemWriter;
+import org.mybatis.spring.batch.MyBatisPagingItemReader;
+import org.mybatis.spring.batch.builder.MyBatisBatchItemWriterBuilder;
+import org.mybatis.spring.batch.builder.MyBatisPagingItemReaderBuilder;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -28,6 +33,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -69,16 +75,6 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public PersonToUpperCaseItemProcessor toUpperCaseItemProcessor() {
-        return new PersonToUpperCaseItemProcessor();
-    }
-
-    @Bean
-    public PersonToLowerCaseItemProcessor toLowerCaseItemProcessor() {
-        return new PersonToLowerCaseItemProcessor();
-    }
-
-    @Bean
     public JdbcBatchItemWriter<Person> dbWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<Person>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
@@ -96,6 +92,46 @@ public class BatchConfiguration {
                 .names("firstName", "lastName")
                 .build();
     }
+
+    @Bean
+    public MyBatisPagingItemReader<Person> personMyBatisPagingItemReader(SqlSessionFactory sqlSessionFactory) {
+        return new MyBatisPagingItemReaderBuilder<Person>()
+                .sqlSessionFactory(sqlSessionFactory)
+                .queryId("com.example.mybatis.PersonMapper.selectAll")
+                .build();
+    }
+
+    @Bean
+    public MyBatisBatchItemWriter<List<Record>> recordMyBatisBatchItemWriter(SqlSessionFactory sqlSessionFactory) {
+        return new MyBatisBatchItemWriterBuilder<List<Record>>()
+                .sqlSessionFactory(sqlSessionFactory)
+                .statementId("com.example.mybatis.RecordMapper.insertBatch")
+                .assertUpdates(false)
+                .build();
+    }
+
+    @Bean
+    public Job recordJob(JobCompletionNotificationListener listener, Step recordStep) {
+        return jobBuilderFactory.get("recordJob")
+                .incrementer(new RunIdIncrementer())
+                .listener(listener)
+                .flow(recordStep)
+                .end()
+                .build();
+    }
+
+    @Bean
+    public Step recordStep(MyBatisPagingItemReader<Person> reader,
+                           PersonItemProcessor processor,
+                           MyBatisBatchItemWriter<List<Record>> writer) {
+        return stepBuilderFactory.get("recordStep")
+                .<Person, List<Record>>chunk(10) //分片大小
+                .reader(reader)
+                .processor(processor)
+                .writer(writer)
+                .build();
+    }
+
 
     @Bean
     public Job importPeopleJob(JobCompletionNotificationListener listener, Step importPeopleStep) {

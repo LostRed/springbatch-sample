@@ -21,6 +21,8 @@ public class JobController {
     private Job importPeopleJob;
     @Autowired
     private Job exportPeopleJob;
+    @Autowired
+    private Job recordJob;
 
     @GetMapping("/importPeopleJob/run")
     public String importPeopleJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
@@ -35,6 +37,14 @@ public class JobController {
         JobParametersBuilder paramBuilder = new JobParametersBuilder();
         paramBuilder.addDate("running_time", new Date());
         jobLauncher.run(exportPeopleJob, paramBuilder.toJobParameters());
+        return "ok";
+    }
+
+    @GetMapping("/recordJob/run")
+    public String recordJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+        JobParametersBuilder paramBuilder = new JobParametersBuilder();
+        paramBuilder.addDate("running_time", new Date());
+        jobLauncher.run(recordJob, paramBuilder.toJobParameters());
         return "ok";
     }
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mybatis.RecordMapper">
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyColumn="record_id">
+        insert into record (person_id, reason)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.personId}, #{item.reason})
+        </foreach>
+    </insert>
+
+</mapper>
