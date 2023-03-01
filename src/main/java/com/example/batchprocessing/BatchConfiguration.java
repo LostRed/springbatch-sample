@@ -1,5 +1,6 @@
 package com.example.batchprocessing;
 
+import com.example.mybatis.RecordWriter;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.batch.MyBatisBatchItemWriter;
 import org.mybatis.spring.batch.MyBatisPagingItemReader;
@@ -123,7 +124,7 @@ public class BatchConfiguration {
     @Bean
     public Step recordStep(MyBatisPagingItemReader<Person> reader,
                            PersonItemProcessor processor,
-                           MyBatisBatchItemWriter<List<Record>> writer) {
+                           RecordWriter writer) {
         return stepBuilderFactory.get("recordStep")
                 .<Person, List<Record>>chunk(10) //分片大小
                 .reader(reader)
