@@ -2,19 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.mybatis.RecordMapper">
 
-    <delete id="deleteByPersonId">
+    <delete id="delete">
         delete
         from record
         where person_id = #{personId}
-    </delete>
-
-    <delete id="deleteBatch">
-        delete
-        from record
-        where person_id in
-        <foreach collection="list" item="item" open="(" close=")" separator=",">
-            #{item}
-        </foreach>
+          and reason = #{reason}
     </delete>
 
     <insert id="insertBatch" useGeneratedKeys="true" keyColumn="record_id">

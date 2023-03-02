@@ -2,7 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.mybatis.PersonMapper">
 
-    <select id="selectAll" resultType="com.example.batchprocessing.Person">
+    <select id="selectLimit" resultType="com.example.batchprocessing.Person">
+        select person_id, first_name, last_name
+        from people
+        limit #{_skiprows}, #{_pagesize}
+    </select>
+
+    <select id="selectCursor" resultType="com.example.batchprocessing.Person">
         select person_id, first_name, last_name
         from people
     </select>
